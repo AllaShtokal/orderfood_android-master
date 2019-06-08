@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "826905213062",
+    "firebase_url": "https://foodmood-alla.firebaseio.com",
+    "project_id": "foodmood-alla",
+    "storage_bucket": "foodmood-alla.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826905213062:android:b7077e1dea6a61f3",
+        "android_client_info": {
+          "package_name": "com.example.milymozz.orderfood"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "826905213062-ka3ein10d58i9n3o3kcalciv8u4ohnn5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.milymozz.orderfood",
+            "certificate_hash": "402ca9c638ab4e28f2fd88122dd4e63446939502"
+          }
+        },
+        {
+          "client_id": "826905213062-mhdusrsfc6ki5b3nl1l5cqjd2ldronft.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXwcrhY71FX3uDqvsf6tFyeE-hHi9tRMI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "826905213062-mhdusrsfc6ki5b3nl1l5cqjd2ldronft.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
