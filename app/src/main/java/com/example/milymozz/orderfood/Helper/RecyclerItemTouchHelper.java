@@ -9,9 +9,7 @@ import com.example.milymozz.orderfood.Interface.RecyclerItemTouchHelperListener;
 import com.example.milymozz.orderfood.ViewHolder.CartViewHolder;
 import com.example.milymozz.orderfood.ViewHolder.FavoritesViewHolder;
 
-/**
- * Created by milymozz on 2018. 3. 21..
- */
+
 
 public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private RecyclerItemTouchHelperListener listener;

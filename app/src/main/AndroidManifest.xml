@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,7 +19,7 @@
         <!-- Google Place Api -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDkY5ImodSVZkYimZMf2Nul_Zs-CDBaF28"/>
+            android:value="AIzaSyDghXHiKzUJR8hJvswAEm9ZrucIqVAZm6w"/>
 
         <!-- Facebook App Id -->
         <meta-data
@@ -71,8 +72,9 @@
 
         <provider
             android:name="com.facebook.FacebookContentProvider"
-            android:authorities="com.facebook.app.FacebookContentProvider153245932008718"
+            android:authorities="com.facebook.app.FacebookContentProvider539208666483963"
             android:exported="true"/>
+
 
         <activity android:name=".SearchActivity">
         </activity>

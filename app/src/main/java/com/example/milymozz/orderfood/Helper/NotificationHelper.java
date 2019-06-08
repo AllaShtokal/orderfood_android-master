@@ -12,9 +12,6 @@ import android.os.Build;
 
 import com.example.milymozz.orderfood.R;
 
-/**
- * Created by devMozz on 2018. 4. 10..
- */
 
 public class NotificationHelper extends ContextWrapper {
 
@@ -25,7 +22,7 @@ public class NotificationHelper extends ContextWrapper {
 
     public NotificationHelper(Context base) {
         super(base);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) // Api 가 26 이상인 경우에만 이 함수를 사용
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) // Api 26
             createChanel();
     }
 

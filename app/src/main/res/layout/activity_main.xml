@@ -21,7 +21,7 @@
             android:layout_height="220dp"
             android:layout_gravity="center"
             android:gravity="center_horizontal"
-            android:text="Order Food"
+            android:text="FoodMood"
             android:textColor="@android:color/widget_edittext_dark"
             android:textSize="48sp"/>
 

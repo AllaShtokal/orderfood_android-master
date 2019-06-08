@@ -120,7 +120,7 @@ public class Home extends AppCompatActivity
             }
         });
 
-        //Default, 처음에 로드를 한다
+        //Default,
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
@@ -302,8 +302,8 @@ public class Home extends AppCompatActivity
         swipeRefreshLayout.setRefreshing(false);
 
         //Animation
-//        recycler_menu.getAdapter().notifyDataSetChanged();
-//        recycler_menu.scheduleLayoutAnimation();
+        recycler_menu.getAdapter().notifyDataSetChanged();
+       recycler_menu.scheduleLayoutAnimation();
 
     }
 

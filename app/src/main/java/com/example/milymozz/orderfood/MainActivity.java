@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtSlogan, txtMain;
 
     private static final int REQUEST_CODE = 7171;
+    private static final String CONFIG_CLIENT_ID = "your client id";
 
     @Override
     protected void attachBaseContext(Context newBase) {

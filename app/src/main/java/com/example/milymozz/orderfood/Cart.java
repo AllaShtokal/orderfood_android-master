@@ -1,7 +1,9 @@
 package com.example.milymozz.orderfood;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.milymozz.orderfood.Common.Common;
+import com.example.milymozz.orderfood.Common.Config;
 import com.example.milymozz.orderfood.Database.Database;
 import com.example.milymozz.orderfood.Helper.RecyclerItemTouchHelper;
 import com.example.milymozz.orderfood.Interface.RecyclerItemTouchHelperListener;
@@ -60,12 +63,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.paypal.android.sdk.payments.PayPalConfiguration;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -115,9 +124,14 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
     private static final int UPDATE_INTERVAL = 5000;
     private static final int FASTEST_INTERVAL = 3000;
     private static final int DISPLACEMENT = 10;
-
+    private static final int PAYPAL_REQUEST_CODE = 9998;
     private static final int LOCATION_REQUEST_CODE = 9999;
     private static final int PLAY_SERVICE_REQUEST = 9997;
+
+    static PayPalConfiguration config = new PayPalConfiguration()
+            .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX) //use Sandbox because we test, changeit late for you
+            .clientId(Config.PAYPAL_CLIENT_ID);
+
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -156,6 +170,10 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
         //Init
         mGoogleService = Common.getGoogleMapApi();
+        //Initi Paypal
+        Intent intent = new Intent(this, PayPalService.class);
+        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+        startService(intent);
 
         //Init Service
         mService = Common.getFCMService();
@@ -401,9 +419,22 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
                 } else if (rdiPaypal.isChecked()) {
                     // I will add Paypal SDK later....
-                    Toast.makeText(Cart.this, "PayPal временно недоступен", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(Cart.this, "PayPal временно недоступен", Toast.LENGTH_SHORT).show();
+                    String formatAmount = txtTotalPlace.getText().toString()
+                            .replace("$", "")
+                            .replace(",", "");
 
-                } else if (rdiCod.isChecked()) {
+                    //Show Paypal to payment
+                    PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(formatAmount),
+                            "USD",
+                            "Order App",
+                            PayPalPayment.PAYMENT_INTENT_SALE);
+                    Intent intent = new Intent(getApplicationContext(), PaymentActivity.class);
+                    intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+                    intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payPalPayment);
+                    startActivityForResult(intent, PAYPAL_REQUEST_CODE);
+                }
+                else if (rdiCod.isChecked()) {
                     Request request = new Request(
                             Common.currentUser.getPhone(),
                             Common.currentUser.getName(),
@@ -454,7 +485,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                         requests.child(order_number)
                                 .setValue(request);
 
-                        //업데이트 balance
+                        // balance
                         double balance = Double.parseDouble(Common.currentUser.getBalance().toString()) - amount;
                         Map<String, Object> update_balance = new HashMap<>();
                         update_balance.put("balance", balance);
@@ -525,7 +556,56 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
         alertDialog.show();
     }
 
-    private void sendNotification(final String order_number) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PAYPAL_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+                if (confirmation != null) {
+                    try {
+                        String paymentDetail = confirmation.toJSONObject().toString(4);
+                        JSONObject jsonObject = new JSONObject(paymentDetail);
+                        String paymentState = jsonObject.getJSONObject("response").getString("state");//State from JSON
+
+                        //Create new Request
+                        Request request = new Request(
+                                Common.currentUser.getPhone(),
+                                Common.currentUser.getName(),
+                                address,
+                                txtTotalPlace.getText().toString(),
+                                comment,
+                                "Paypal",
+                                paymentState,
+                                String.format("%s %s", shippingAddress.getLatLng().latitude, shippingAddress.getLatLng().longitude),
+                                cart
+                        );
+
+                        //Submit to Firebase
+                        //We will using System.currentMilli to key
+                        String order_number = String.valueOf(System.currentTimeMillis());
+                        requests.child(order_number)
+                                .setValue(request);
+                        //Delete Cart
+                        new Database(getBaseContext()).cleanCart(Common.currentUser.getPhone());
+
+                        sendNotification(order_number);
+                        Toast.makeText(Cart.this, "Thank you, Order Place", Toast.LENGTH_SHORT).show();
+                        finish();
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(this, "Payment canceled.", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+                Toast.makeText(this, "Invalid payment.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+        private void sendNotification(final String order_number) {
         DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
         Query data = tokens.orderByChild("serverToken").equalTo(true); // get all node with isServerToken is true
         data.addValueEventListener(new ValueEventListener() {
