@@ -50,7 +50,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
+//import com.google.firebase.messaging.FirebaseMessaging;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Picasso;
 
@@ -416,15 +416,15 @@ public class Home extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                if (ckb_news.isChecked()) {
-                    FirebaseMessaging.getInstance().subscribeToTopic(Common.TOPICNAME);
-                    //Write Value
-                    Paper.book().write("sub_news", "true");
-                } else {
-                    FirebaseMessaging.getInstance().unsubscribeFromTopic(Common.TOPICNAME);
-                    //Write Value
-                    Paper.book().write("sub_news", "false");
-                }
+//                if (ckb_news.isChecked()) {
+//                    FirebaseMessaging.getInstance().subscribeToTopic(Common.TOPICNAME);
+//                    //Write Value
+//                    Paper.book().write("sub_news", "true");
+//                } else {
+//                    FirebaseMessaging.getInstance().unsubscribeFromTopic(Common.TOPICNAME);
+//                    //Write Value
+//                    Paper.book().write("sub_news", "false");
+//                }
 
             }
         });

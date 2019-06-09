@@ -14,8 +14,8 @@ import com.example.milymozz.orderfood.Common.Common;
 import com.example.milymozz.orderfood.Helper.NotificationHelper;
 import com.example.milymozz.orderfood.OrderStatus;
 import com.example.milymozz.orderfood.R;
-import com.google.firebase.messaging.FirebaseMessagingService;
-import com.google.firebase.messaging.RemoteMessage;
+//import com.google.firebase.messaging.FirebaseMessagingService;
+//import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
 import java.util.Random;
