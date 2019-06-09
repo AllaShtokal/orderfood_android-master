@@ -31,6 +31,8 @@ import com.facebook.accountkit.ui.AccountKitConfiguration;
 import com.facebook.accountkit.ui.LoginType;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 7171;
     private static final String CONFIG_CLIENT_ID = "your client id";
+    // Initialize Places.
+    //Places.initialize(getApplicationContext(), apiKey);
+    // Create a new Places client instance.
+   // PlacesClient placesClient = Places.createClient(this);
 
     @Override
     protected void attachBaseContext(Context newBase) {

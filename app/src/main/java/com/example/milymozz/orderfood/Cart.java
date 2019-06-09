@@ -44,6 +44,8 @@ import com.example.milymozz.orderfood.Remote.APIService;
 import com.example.milymozz.orderfood.Remote.IGoogleService;
 import com.example.milymozz.orderfood.ViewHolder.CartAdapter;
 import com.example.milymozz.orderfood.ViewHolder.CartViewHolder;
+
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -51,11 +53,14 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteFragment;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -78,6 +83,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -99,7 +105,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
 
-    public TextView txtTotalPlace;
+    public TextView txtTotalPrice;
     private String address, comment;
     private FButton btnPlace;
 
@@ -113,8 +119,10 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
     private Place shippingAddress;
 
+
     //Declare google Map Api Retrofit
     private IGoogleService mGoogleService;
+
 
     //Location
     private LocationRequest mLocationRequest;
@@ -148,6 +156,8 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                 .build());
 
         setContentView(R.layout.activity_cart);
+        Places.initialize(getApplicationContext(), "AIzaSyDghXHiKzUJR8hJvswAEm9ZrucIqVAZm6w");
+        PlacesClient placesClient = Places.createClient(this);
 
         rootLayout = (RelativeLayout) findViewById(R.id.rootLayout);
 
@@ -192,7 +202,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
 
-        txtTotalPlace = (TextView) findViewById(R.id.total);
+        txtTotalPrice = (TextView) findViewById(R.id.total);
         btnPlace = (FButton) findViewById(R.id.btnPlaceOrder);
 
         btnPlace.setOnClickListener(new View.OnClickListener() {
@@ -271,24 +281,23 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
         LayoutInflater inflater = this.getLayoutInflater();
         View order_address_comment = inflater.inflate(R.layout.order_address_comment, null);
-
-//        final MaterialEditText edtAddress = (MaterialEditText) order_address_comment.findViewById(R.id.edtAddress);
-
-        final PlaceAutocompleteFragment edtAddress = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        final AutocompleteSupportFragment edtAddress = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
         //Hide search icon before fragment
-        edtAddress.getView().findViewById(R.id.place_autocomplete_search_button).setVisibility(View.GONE);
+        edtAddress.getView().findViewById(R.id.places_autocomplete_search_button).setVisibility(View.GONE);
         //Set hide for Autocomplete edit text
-        ((EditText) edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+        ((EditText) edtAddress.getView().findViewById(R.id.places_autocomplete_search_input))
                 .setHint("Пожалуйста, введите ваш адрес");
         //Set Text Size
-        ((EditText) edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+        ((EditText) edtAddress.getView().findViewById(R.id.places_autocomplete_search_input))
                 .setTextSize(14);
 
-        //Get address from place Autocomplete
+
+        edtAddress.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
         edtAddress.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 shippingAddress = place;
+
             }
 
             @Override
@@ -314,7 +323,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                     if (Common.currentUser.getHomeAddress() != null || !TextUtils.isEmpty(Common.currentUser.getHomeAddress())) {
                         address = Common.currentUser.getHomeAddress();
                         //Set this address to edtAddress
-                        ((EditText) edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+                        ((EditText) edtAddress.getView().findViewById(R.id.places_autocomplete_search_input))
                                 .setText(address);
                     } else {
                         Toast.makeText(Cart.this, "Введите адрес", Toast.LENGTH_SHORT).show();
@@ -349,7 +358,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
 
                                         //Set this address to edtAddress
-                                        ((EditText) edtAddress.getView().findViewById(R.id.place_autocomplete_search_input))
+                                        ((EditText) edtAddress.getView().findViewById(R.id.places_autocomplete_search_input))
                                                 .setText(address);
 
                                     } catch (JSONException e) {
@@ -391,7 +400,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
                         //Fix crash fragment
                         getFragmentManager().beginTransaction()
-                                .remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment))
+                                .remove(getFragmentManager().findFragmentById(R.id.autocomplete_fragment))
                                 .commit();
 
                         return;
@@ -402,17 +411,17 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                     Toast.makeText(Cart.this, "Пожалуйста, введите ваш адрес", Toast.LENGTH_SHORT).show();
 
                     getFragmentManager().beginTransaction()
-                            .remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment))
+                            .remove(getFragmentManager().findFragmentById(R.id.autocomplete_fragment))
                             .commit();
 
                     return;
                 }
 
                 if (!rdiCod.isChecked() && !rdiPaypal.isChecked() && !rdiOrderBalance.isChecked()) {
-                    Toast.makeText(Cart.this, "Paypal Option", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Cart.this, "Choose Option", Toast.LENGTH_SHORT).show();
 
                     getFragmentManager().beginTransaction()
-                            .remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment))
+                            .remove(getFragmentManager().findFragmentById(R.id.autocomplete_fragment))
                             .commit();
 
                     return;
@@ -420,15 +429,16 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                 } else if (rdiPaypal.isChecked()) {
                     // I will add Paypal SDK later....
                    // Toast.makeText(Cart.this, "PayPal временно недоступен", Toast.LENGTH_SHORT).show();
-                    String formatAmount = txtTotalPlace.getText().toString()
+                    String formatAmount = txtTotalPrice.getText().toString()
                             .replace("$", "")
                             .replace(",", "");
 
-                    //Show Paypal to payment
-                    PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(formatAmount),
-                            "USD",
-                            "Order App",
-                            PayPalPayment.PAYMENT_INTENT_SALE);
+                    //show paypal to payment
+                    PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(formatAmount)
+                            , "USD"
+                            , "Eat it App Order"
+                            , PayPalPayment.PAYMENT_INTENT_SALE);
+
                     Intent intent = new Intent(getApplicationContext(), PaymentActivity.class);
                     intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
                     intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payPalPayment);
@@ -439,19 +449,19 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                             Common.currentUser.getPhone(),
                             Common.currentUser.getName(),
                             address,
-                            txtTotalPlace.getText().toString(),
+                            txtTotalPrice.getText().toString(),
                             "0",
                             edtComment.getText().toString(),
                             "COD",
-                            String.format("%s, %s", mLastLocation.getLatitude(), mLastLocation.getLongitude()), // Coordinates Когда пользователь размещает заказ
+                            String.format("%s, %s", mLastLocation.getLatitude(), mLastLocation.getLongitude()), // Coordinates 유저가 주문을 할 때
                             cart);
 
-                    // System.CurrentMilli Как ключ
+                    // System.CurrentMilli 를 키로 사용
                     String order_number = String.valueOf(System.currentTimeMillis());
                     requests.child(order_number)
                             .setValue(request);
 
-                    //Delete корзина
+                    //Delete 카트
                     new Database(getBaseContext()).cleanCart(Common.currentUser.getPhone());
 
                     sendNotification(order_number);
@@ -463,7 +473,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                     double amount = 0;
                     // First,  получаю полную цену
                     try {
-                        amount = Common.formatCurrency(txtTotalPlace.getText().toString(), Locale.US).doubleValue();
+                        amount = Common.formatCurrency(txtTotalPrice.getText().toString(), Locale.US).doubleValue();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -474,7 +484,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                                 Common.currentUser.getPhone(),
                                 Common.currentUser.getName(),
                                 address,
-                                txtTotalPlace.getText().toString(),
+                                txtTotalPrice.getText().toString(),
                                 "0",
                                 edtComment.getText().toString(),
                                 "Order Balance",
@@ -532,7 +542,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
                 //Remove fragment
                 getFragmentManager().beginTransaction()
-                        .remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment))
+                        .remove(getFragmentManager().findFragmentById(R.id.autocomplete_fragment))
                         .commit();
 
             }
@@ -547,7 +557,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
                 //Remove fragment
                 getFragmentManager().beginTransaction()
-                        .remove(getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment))
+                        .remove(getFragmentManager().findFragmentById(R.id.autocomplete_fragment))
                         .commit();
 
             }
@@ -558,103 +568,101 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PAYPAL_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
+        if(requestCode == PAYPAL_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
                 PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
-                if (confirmation != null) {
-                    try {
+                if(confirmation != null){
+                    try{
                         String paymentDetail = confirmation.toJSONObject().toString(4);
                         JSONObject jsonObject = new JSONObject(paymentDetail);
-                        String paymentState = jsonObject.getJSONObject("response").getString("state");//State from JSON
 
-                        //Create new Request
-                        Request request = new Request(
+                        Request request = new Request (
                                 Common.currentUser.getPhone(),
                                 Common.currentUser.getName(),
                                 address,
-                                txtTotalPlace.getText().toString(),
+                                txtTotalPrice.getText().toString(),
+                                "0",
                                 comment,
                                 "Paypal",
-                                paymentState,
-                                String.format("%s %s", shippingAddress.getLatLng().latitude, shippingAddress.getLatLng().longitude),
+                                jsonObject.getJSONObject("response").getString("state"),
                                 cart
                         );
-
                         //Submit to Firebase
-                        //We will using System.currentMilli to key
+                        //We will using System.CurrenMilli as key
                         String order_number = String.valueOf(System.currentTimeMillis());
                         requests.child(order_number)
                                 .setValue(request);
                         //Delete Cart
                         new Database(getBaseContext()).cleanCart(Common.currentUser.getPhone());
-
                         sendNotification(order_number);
-                        Toast.makeText(Cart.this, "Thank you, Order Place", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(Cart.this, "Thank you, Order Placed", Toast.LENGTH_SHORT).show();
                         finish();
 
 
-                    } catch (JSONException e) {
+                    } catch (JSONException e){
                         e.printStackTrace();
                     }
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(this, "Payment canceled.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Cart.this, "Payment Cancelled", Toast.LENGTH_SHORT).show();
             } else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
-                Toast.makeText(this, "Invalid payment.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Cart.this, "Invalid Payment", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-        private void sendNotification(final String order_number) {
-        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
-        Query data = tokens.orderByChild("serverToken").equalTo(true); // get all node with isServerToken is true
-        data.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Token serverToken = null;
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    serverToken = postSnapshot.getValue(Token.class);
-                }
 
-                //Create raw payload to send
-//                    Notification notification = new Notification("DEV", "You have new order" + order_number);
+        private void sendNotification(final String order_number) {
+            DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+            Query data = tokens.orderByChild("serverToken").equalTo(true); // get all node with isServerToken is true
+            data.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Token serverToken = null;
+                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                        serverToken = postSnapshot.getValue(Token.class);
+                    }
+
+                    //Create raw payload to send
+//                    Notification notification = new Notification("MOZZ DEV", "You have new order" + order_number);
 //                    Sender content = new Sender(serverToken.getToken(), notification);
 
-                Map<String, String> dataSend = new HashMap<>();
-                dataSend.put("title", "MozzDev");
-                dataSend.put("message", "Заказ пришел! " + order_number);
-                DataMessage dataMessage = new DataMessage(serverToken != null ? serverToken.getToken() : null, dataSend);
+                    Map<String, String> dataSend = new HashMap<>();
+                    dataSend.put("title", "MozzDev");
+                    dataSend.put("message", "Новий заказ! " + order_number);
+                    DataMessage dataMessage = new DataMessage(serverToken != null ? serverToken.getToken() : null, dataSend);
 
-                String test = new Gson().toJson(dataMessage);
-                Log.d("Content", test);
+                    String test = new Gson().toJson(dataMessage);
+                    Log.d("Content", test);
 
-                mService.sendNotification(dataMessage)
-                        .enqueue(new Callback<MyResponse>() {
-                            @Override
-                            public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
-                                //Only run when get result
-                                if (response.code() == 200) {
-                                    if (response.body().success == 1) {
+                    mService.sendNotification(dataMessage)
+                            .enqueue(new Callback<MyResponse>() {
+                                @Override
+                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                                    //Only run when get result
+                                    if (response.code() == 200) {
+                                        if (response.body().success == 1) {
 
-                                    } else {
-                                        Toast.makeText(Cart.this, "Failed !!", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(Cart.this, "Failed !!", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 }
-                            }
 
-                            @Override
-                            public void onFailure(Call<MyResponse> call, Throwable t) {
-                                Log.e("ERROR", t.getMessage());
-                            }
-                        });
-            }
+                                @Override
+                                public void onFailure(Call<MyResponse> call, Throwable t) {
+                                    Log.e("ERROR", t.getMessage());
+                                }
+                            });
+                }
 
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
 
     }
 
@@ -672,7 +680,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
         Locale locale = new Locale("en", "US");
         NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
 
-        txtTotalPlace.setText(fmt.format(total));
+        txtTotalPrice.setText(fmt.format(total));
 
     }
 
@@ -772,7 +780,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
             Locale locale = new Locale("en", "US");
             NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
 
-            txtTotalPlace.setText(fmt.format(total));
+            txtTotalPrice.setText(fmt.format(total));
 
             //SnackBar
             Snackbar snackbar = Snackbar.make(rootLayout, name + " Удалить из корзины", Snackbar.LENGTH_LONG);
@@ -791,7 +799,7 @@ public class Cart extends AppCompatActivity implements GoogleApiClient.Connectio
                     Locale locale = new Locale("en", "US");
                     NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
 
-                    txtTotalPlace.setText(fmt.format(total));
+                    txtTotalPrice.setText(fmt.format(total));
                 }
             });
             snackbar.setActionTextColor(Color.YELLOW);

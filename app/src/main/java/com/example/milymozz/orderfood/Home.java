@@ -163,7 +163,7 @@ public class Home extends AppCompatActivity
                     @Override
                     public void onClick(View view, int position, boolean isLongClick) {
                         Toast.makeText(Home.this, "" + clickItem.getName(), Toast.LENGTH_SHORT).show();
-                        //CategoryId를 다른 액티비티로 보낸다
+                        //CategoryId
                         Intent foodListIntent = new Intent(Home.this, FoodList.class);
                         foodListIntent.putExtra("CategoryId", adapter.getRef(position).getKey());
                         Log.d("CategoryId", adapter.getRef(position).getKey());

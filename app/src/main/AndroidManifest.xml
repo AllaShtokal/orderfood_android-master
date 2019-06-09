@@ -19,7 +19,7 @@
         <!-- Google Place Api -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDghXHiKzUJR8hJvswAEm9ZrucIqVAZm6w"/>
+            android:value="AIzaSyDC_sqzmiA6FS17E68bembl31QWzH3M9Z8"/>
 
         <!-- Facebook App Id -->
         <meta-data

@@ -22,30 +22,30 @@ import java.util.Random;
 
 
 
-public class MyFirebaseMessaging extends FirebaseMessagingService {
+//public class MyFirebaseMessaging extends FirebaseMessagingService {
 
-    @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
-        super.onMessageReceived(remoteMessage);
-        if (remoteMessage.getData() != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                sendNotificationAPI26(remoteMessage);
-            else
-                sendNotification(remoteMessage);
-        }
-    }
+   // @Override
+   // public void onMessageReceived(RemoteMessage remoteMessage) {
+      //  super.onMessageReceived(remoteMessage);
+       // if (remoteMessage.getData() != null) {
+           // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+             //   sendNotificationAPI26(remoteMessage);
+           // else
+             //   sendNotification(remoteMessage);
+       // }
+  //  }
 
-    private void sendNotificationAPI26(RemoteMessage remoteMessage) {
+    //private void sendNotificationAPI26(RemoteMessage remoteMessage) {
 //        RemoteMessage.Notification notification = remoteMessage.getNotification();
 //        String title = notification != null ? notification.getTitle() : null;
 //        String content = notification != null ? notification.getBody() : null;
 
-        Map<String, String> data = remoteMessage.getData();
-        String title = data.get("title");
-        String message = data.get("message");
+     //   Map<String, String> data = remoteMessage.getData();
+      //  String title = data.get("title");
+      //  String message = data.get("message");
 
         // Go to Order List
-        PendingIntent pendingIntent;
+       /* PendingIntent pendingIntent;
         NotificationHelper notificationHelper;
         Notification.Builder builder;
 
@@ -71,9 +71,9 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
             notificationHelper.getManager().notify(new Random().nextInt(), builder.build());
         }
 
-    }
+    }*/
 
-    private void sendNotification(RemoteMessage remoteMessage) {
+  /*  private void sendNotification(RemoteMessage remoteMessage) {
         Map<String, String> data = remoteMessage.getData();
         String title = data.get("title");
         String message = data.get("message");
@@ -94,5 +94,5 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         NotificationManager noti = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         noti.notify(0, builder.build());
 
-    }
-}
+    }*/
+//}

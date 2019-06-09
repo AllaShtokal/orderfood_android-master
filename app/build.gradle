@@ -11,25 +11,12 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
-    signingConfigs {
-        release {
-            storeFile file("key.jks")
-            storePassword "orderfood"
-            keyAlias "orderfood"
-            keyPassword "orderfood"
-        }
-    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-        debug {
-            signingConfig signingConfigs.release
         }
     }
-
 }
 
 configurations.all {
@@ -59,17 +46,25 @@ dependencies {
     implementation 'com.daimajia.slider:library:1.1.5@aar'
 
     //Firebase
-    implementation 'com.google.firebase:firebase-messaging:11.6.2'
-    implementation 'com.google.firebase:firebase-auth:11.6.2'
-    implementation 'com.google.firebase:firebase-core:11.6.2'
-    implementation 'com.google.firebase:firebase-database:11.6.2'
+    implementation 'com.google.firebase:firebase-messaging:15.0.0'
+    implementation 'com.google.firebase:firebase-auth:15.0.0'
+    implementation 'com.google.firebase:firebase-core:15.0.0'
+    implementation 'com.google.firebase:firebase-database:15.0.0'
     implementation 'com.firebaseui:firebase-ui-database:3.1.2'
-
-    //Google Service
-    implementation 'com.google.android.gms:play-services-places:11.6.2'
-    implementation 'com.google.android.gms:play-services:11.6.2'
     //PayPal
     implementation 'com.paypal.sdk:paypal-android-sdk:2.15.3'
+    //Google Service
+    //implementation 'com.google.android.gms:play-services-places:11.6.2'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.android.libraries.places:places:1.1.0'
+//    implementation 'com.google.android.gms:play-services:15.0.0'
+
+    implementation 'com.google.android.gms:play-services-gcm:15.0.0'
+    implementation 'com.google.android.gms:play-services-location:15.0.0'
+    implementation 'com.google.android.gms:play-services-maps:15.0.0'
+    implementation 'com.google.android.gms:play-services-games:15.0.0'
+
+
     //Add Library
     implementation 'com.github.andremion:counterfab:1.0.1'
     implementation 'uk.co.chrisjenx:calligraphy:2.3.0'

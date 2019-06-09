@@ -66,7 +66,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartViewHolder> {
                 Locale locale = new Locale("en", "US");
                 NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
 
-                cart.txtTotalPlace.setText(fmt.format(total));
+                cart.txtTotalPrice.setText(fmt.format(total));
             }
         });
 
